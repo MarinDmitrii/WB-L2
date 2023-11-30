@@ -3,14 +3,14 @@
 ## Паттерны проектирования
 Реализовать паттерны, объяснить применимость каждого паттерна, плюсы и минусы, а также реальные примеры использования паттерна на практике.
 
-- [ ] 01. Паттерн [«фасад»](https://en.wikipedia.org/wiki/Facade_pattern). 
-- [ ] 02. Паттерн [«строитель»](https://en.wikipedia.org/wiki/Builder_pattern). 
-- [ ] 03. Паттерн [«посетитель»](https://en.wikipedia.org/wiki/Visitor_pattern). 
-- [ ] 04. Паттерн [«комманда»](https://en.wikipedia.org/wiki/Command_pattern). 
-- [ ] 05. Паттерн [«цепочка вызовов»](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern). 
-- [ ] 06. Паттерн [«фабричный метод»](https://en.wikipedia.org/wiki/Factory_method_pattern). 
-- [ ] 07. Паттерн [«стратегия»](https://en.wikipedia.org/wiki/Strategy_pattern).
-- [ ] 08. Паттерн [«состояние»](https://en.wikipedia.org/wiki/State_pattern)
+- [x] 01. Паттерн [«фасад»](https://en.wikipedia.org/wiki/Facade_pattern). 
+- [x] 02. Паттерн [«строитель»](https://en.wikipedia.org/wiki/Builder_pattern). 
+- [x] 03. Паттерн [«посетитель»](https://en.wikipedia.org/wiki/Visitor_pattern). 
+- [x] 04. Паттерн [«комманда»](https://en.wikipedia.org/wiki/Command_pattern). 
+- [x] 05. Паттерн [«цепочка вызовов»](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern). 
+- [x] 06. Паттерн [«фабричный метод»](https://en.wikipedia.org/wiki/Factory_method_pattern). 
+- [x] 07. Паттерн [«стратегия»](https://en.wikipedia.org/wiki/Strategy_pattern).
+- [x] 08. Паттерн [«состояние»](https://en.wikipedia.org/wiki/State_pattern)
 
 
 ## Задачи на разработку
