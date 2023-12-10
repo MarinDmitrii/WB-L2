@@ -1,0 +1,20 @@
+
+84 -84
+42 -42
+-13
+apple 3
+apple 5
+orange 7
+orange 7
+banana 8
+banana 8
+banana 10
+13
+banana 14
+grape 15
+banana 23
+-42 42
+84
+banana 124
+apple
+14 banana

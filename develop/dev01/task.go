@@ -1,9 +1,16 @@
 package main
 
+import (
+	"fmt"
+	"os"
+
+	"github.com/beevik/ntp"
+)
+
 /*
 === Базовая задача ===
 
-Создать программу печатающую точное время с использованием NTP библиотеки.Инициализировать как go module.
+Создать программу печатающую точное время с использованием NTP-библиотеки. Инициализировать как go module.
 Использовать библиотеку https://github.com/beevik/ntp.
 Написать программу печатающую текущее время / точное время с использованием этой библиотеки.
 
@@ -12,6 +19,28 @@ package main
 Программа должна проходить проверки go vet и golint.
 */
 
-func main() {
+var ntpServer = "0.beevik-ntp.pool.ntp.org"
 
+func getTime() error {
+	// Запрашиваем точное время с NTP-сервера
+	time, err := ntp.Time(ntpServer)
+	// Проверяем, есть ли ошибка при запросе времени
+	if err != nil {
+		return err
+	}
+
+	// Выводим полученное точное время
+	fmt.Println(time)
+
+	return nil
+}
+
+func main() {
+	err := getTime()
+	// Проверяем, есть ли ошибка при запросе времени
+	if err != nil {
+		// В случае ошибки выводим её в STDERR и завершаем программу с ненулевым кодом возврата
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(1)
+	}
 }

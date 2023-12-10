@@ -1,0 +1,11 @@
+apple 1
+banana 3
+strawberry 2
+wildberries 1
+apple 3
+cherry 4
+date 1
+elderberry 2
+elderberry 2
+fig 1
+grapefruit 4
