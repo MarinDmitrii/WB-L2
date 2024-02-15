@@ -37,7 +37,7 @@ func (r *CacheEventRepository) CreateEvent(ctx context.Context, domainEvent doma
 		delete(r.cache, r.autoIncrement)
 	}
 
-	if _, ok := r.cache[domainEvent.ID]; !ok || domainEvent.ID == 0 {
+	if _, ok := r.cache[domainEvent.ID]; !ok {
 		domainEvent.ID = r.autoIncrement
 		r.autoIncrement++
 	}
@@ -59,29 +59,28 @@ func (r *CacheEventRepository) GetEventByID(ctx context.Context, eventID int) (d
 }
 
 func (r *CacheEventRepository) UpdateEvent(ctx context.Context, updatedEvent domain.Event) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	_, err := r.GetEventByID(ctx, updatedEvent.ID)
+	if err != nil {
+		return err
+	}
 
-	if cacheEvent, ok := r.cache[updatedEvent.ID]; !ok {
-		return fmt.Errorf("Error: can't find event\n")
-	} else {
-		cacheEvent.UserID = updatedEvent.UserID
-		cacheEvent.Date = updatedEvent.Date
-		cacheEvent.Description = updatedEvent.Description
+	_, err = r.CreateEvent(ctx, updatedEvent)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (r *CacheEventRepository) DeleteEvent(ctx context.Context, eventID int) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	if _, ok := r.cache[eventID]; !ok {
-		return fmt.Errorf("Error: can't find event")
+	_, err := r.GetEventByID(ctx, eventID)
+	if err != nil {
+		return err
 	}
 
+	r.mu.Lock()
 	delete(r.cache, eventID)
+	r.mu.Unlock()
 
 	return nil
 }
@@ -108,11 +107,15 @@ func (r *CacheEventRepository) GetEventsForWeek(ctx context.Context, date time.T
 	eventsForWeek := make([]domain.Event, 0, 10)
 
 	weekday := int(date.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+
+	// Определяем пограничные дни недели для корректной работы функций time.After() и time.Before()
 	startOfWeek := date.AddDate(0, 0, -weekday)
-	endOfWeek := startOfWeek.AddDate(0, 0, 7)
+	endOfWeek := startOfWeek.AddDate(0, 0, 8)
 
 	for _, v := range r.cache {
-		// if v.Date.Year() == date.Year() && v.Date.Month() == date.Month() && (v.Date.Day() >= startOfWeek.Day() && v.Date.Day() < endOfWeek.Day()) {
 		if v.Date.After(startOfWeek) && v.Date.Before(endOfWeek) {
 			eventsForWeek = append(eventsForWeek, v)
 		}

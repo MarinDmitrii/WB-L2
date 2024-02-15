@@ -29,7 +29,6 @@ func (h HttpCalendarHandler) CreateEvent(w http.ResponseWriter, r *http.Request)
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -42,12 +41,14 @@ func (h HttpCalendarHandler) CreateEvent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err := h.app.CreateEvent.Execute(r.Context(), event)
+	id, err := h.app.CreateEvent.Execute(r.Context(), event)
 	if err != nil {
 		// Если ошибка в бизнес-логике, возвращаем HTTP 503
 		h.mapToResponse(w, http.StatusServiceUnavailable, nil, err.Error())
 		return
 	}
+
+	event.ID = id
 
 	h.mapToResponse(w, http.StatusOK, event, "")
 }
@@ -62,7 +63,6 @@ func (h HttpCalendarHandler) UpdateEvent(w http.ResponseWriter, r *http.Request)
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -95,7 +95,6 @@ func (h HttpCalendarHandler) DeleteEvent(w http.ResponseWriter, r *http.Request)
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -108,15 +107,14 @@ func (h HttpCalendarHandler) DeleteEvent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Нужна ли эта промежуточная проверка по нахождению эвента в БД? ------------------------------------------
-	// event, err := h.app.GetEventByID.Execute(r.Context(), event.ID)
-	// if err != nil {
-	// 	// Если ошибка в бизнес-логике, возвращаем HTTP 503
-	// 	h.mapToResponse(w, http.StatusServiceUnavailable, nil, err.Error())
-	// 	return
-	// }
+	event, err := h.app.GetEventByID.Execute(r.Context(), event.ID)
+	if err != nil {
+		// Если ошибка в бизнес-логике, возвращаем HTTP 503
+		h.mapToResponse(w, http.StatusServiceUnavailable, nil, err.Error())
+		return
+	}
 
-	err := h.app.DeleteEvent.Execute(r.Context(), event.ID)
+	err = h.app.DeleteEvent.Execute(r.Context(), event.ID)
 	if err != nil {
 		// Если ошибка в бизнес-логике, возвращаем HTTP 503
 		h.mapToResponse(w, http.StatusServiceUnavailable, nil, err.Error())
@@ -136,7 +134,6 @@ func (h HttpCalendarHandler) GetEventsForDay(w http.ResponseWriter, r *http.Requ
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -156,7 +153,6 @@ func (h HttpCalendarHandler) GetEventsForDay(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Возможно потребуется изменить формат выдачи events -------------------------------------------------------------------
 	h.mapToResponse(w, http.StatusOK, events, "")
 }
 
@@ -170,7 +166,6 @@ func (h HttpCalendarHandler) GetEventsForWeek(w http.ResponseWriter, r *http.Req
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -190,7 +185,6 @@ func (h HttpCalendarHandler) GetEventsForWeek(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Возможно потребуется изменить формат выдачи events -------------------------------------------------------------------
 	h.mapToResponse(w, http.StatusOK, events, "")
 }
 
@@ -204,7 +198,6 @@ func (h HttpCalendarHandler) GetEventsForMonth(w http.ResponseWriter, r *http.Re
 	// Валиадции и парсинг параметров
 	event, statusCode, errMessage := h.validationAndParse(r)
 	if statusCode != 200 {
-		// Исправить описание, потому что на текущий момент мы возвращаем при валидации не только 400, но и 500 и 503! -----------------
 		// Если ошибка во входных данных, возвращаем HTTP 400
 		h.mapToResponse(w, statusCode, nil, errMessage)
 		return
@@ -224,20 +217,8 @@ func (h HttpCalendarHandler) GetEventsForMonth(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// Возможно потребуется изменить формат выдачи events -------------------------------------------------------------------
 	h.mapToResponse(w, http.StatusOK, events, "")
 }
-
-// Нужна ли эта функция? -----------------------------------------------------------
-// func (h HttpCalendarHandler) GetEventByUID(w http.ResponseWriter, r *http.Request, eventID int) (domain.Event, error) {
-// 	event, err := h.app.GetEventByUID.Execute(r.Context(), eventID)
-// 	if err != nil {
-// 		log.Println("здесь косяк!")
-// 		return domain.Event{}, fmt.Errorf("%v, %v", http.StatusInternalServerError, err.Error())
-// 	}
-
-// 	return event, nil
-// }
 
 type jsonEvent struct {
 	ID          int       `json:"event_id"`
@@ -253,46 +234,42 @@ func (h HttpCalendarHandler) validationAndParse(r *http.Request) (domain.Event, 
 	if r.Method == http.MethodGet || (r.Method == http.MethodPost && r.Header.Get("Content-Type") == "application/x-www-form-urlencoded") {
 		err := r.ParseForm()
 		if err != nil {
-			// Или нужно возвращать HTTP 400 ??? Или HTTP 503 ??? ---------------------------------------------------------
-			// Если ошибка при парсинге данных, возвращаем HTTP 500
-			return domain.Event{}, http.StatusInternalServerError, err.Error()
+			// Если ошибка при парсинге данных, возвращаем HTTP 400
+			return domain.Event{}, http.StatusBadRequest, err.Error()
 		}
 
-		eventID := 0
 		if r.Form.Get("event_id") != "" {
-			eventID, err = strconv.Atoi(r.Form.Get("event_id"))
+			event.ID, err = strconv.Atoi(r.Form.Get("event_id"))
 			if err != nil {
 				// Если ошибка валидации входных данных, возвращаем HTTP 400
 				return domain.Event{}, http.StatusBadRequest, err.Error()
 			}
 		}
 
-		userID, err := strconv.Atoi(r.Form.Get("user_id"))
-		if err != nil {
-			// Если ошибка валидации входных данных, возвращаем HTTP 400
-			return domain.Event{}, http.StatusBadRequest, err.Error()
+		if r.Form.Get("user_id") != "" {
+			event.UserID, err = strconv.Atoi(r.Form.Get("user_id"))
+			if err != nil {
+				// Если ошибка валидации входных данных, возвращаем HTTP 400
+				return domain.Event{}, http.StatusBadRequest, err.Error()
+			}
 		}
 
-		date, err := time.Parse("2006-01-02", r.Form.Get("date"))
-		if err != nil {
-			// Если ошибка валидации входных данных, возвращаем HTTP 400
-			return domain.Event{}, http.StatusBadRequest, err.Error()
+		if r.Form.Get("date") != "" {
+			event.Date, err = time.Parse("2006-01-02", r.Form.Get("date"))
+			if err != nil {
+				// Если ошибка валидации входных данных, возвращаем HTTP 400
+				return domain.Event{}, http.StatusBadRequest, err.Error()
+			}
 		}
 
-		description := r.Form.Get("description")
-
-		event.ID = eventID
-		event.UserID = userID
-		event.Date = date
-		event.Description = description
+		event.Description = r.Form.Get("description")
 	} else if r.Header.Get("Content-Type") == "application/json" {
 		jEvent := jsonEvent{}
 
 		err := json.NewDecoder(r.Body).Decode(&jEvent)
 		if err != nil {
-			// Или нужно возвращать HTTP 400 ??? Или HTTP 503 ??? ---------------------------------------------------------
-			// Если ошибка при декодировании данных, возвращаем HTTP 500
-			return domain.Event{}, http.StatusInternalServerError, err.Error()
+			// Если ошибка при декодировании данных, возвращаем HTTP 400
+			return domain.Event{}, http.StatusBadRequest, err.Error()
 		}
 
 		event.ID = jEvent.ID
@@ -327,7 +304,6 @@ func (h HttpCalendarHandler) mapToResponse(w http.ResponseWriter, statusCode int
 
 	// Преобразуем данные в JSON и записываем в тело ответа
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		// Или нужно возвращать HTTP 400 ??? Или HTTP 503 ??? ---------------------------------------------------------
 		// Если ошибка при кодировании данных, возвращаем HTTP 500
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -336,7 +312,7 @@ func (h HttpCalendarHandler) mapToResponse(w http.ResponseWriter, statusCode int
 func (h HttpCalendarHandler) MiddlewareLogger(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Логируем информацию о запросе
-		log.Printf("Request: %s %s\nBody: %s", r.Method, r.URL.Path, r.Form)
+		log.Printf("Request: %s %s\n", r.Method, r.RequestURI)
 		// Передаем запрос следующему обработчику
 		next(w, r)
 	}
